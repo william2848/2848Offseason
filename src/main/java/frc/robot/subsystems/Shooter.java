@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase {
 
 
   @Getter @Setter private boolean shooting = false;
-  private boolean shootingDebounced = false;
+
 
   @Getter private boolean reversing = false;
   
@@ -41,31 +41,12 @@ public class Shooter extends SubsystemBase {
   private final CANrange m_MagazineSensor = new CANrange(kCANRangeID);
   private final CANrangeConfiguration magazineSensorConfig = new CANrangeConfiguration();
 
-  private final Debouncer shootingDebouncer = new Debouncer(3, DebounceType.kRising);
-  private final Debouncer magazineSensorDebouncer = new Debouncer(3, DebounceType.kFalling);
-  private final Debouncer fuelPerSecondDebouncer = new Debouncer(.01);
+
   // private final Debouncer currentDebouncer = new Debouncer(0.167, DebounceType.kBoth);
 
   private final TalonFX m_Magazine;
 
-  private double targetDist =0;
-
-  private double turretSetpoint = 0;
-
-  private double targetTheta = 0;
-
-  private double distanceTrim = 0;
-  private double angularTrim = 0;
-
-  private boolean isShootingByCANrange = false;
-  // private boolean isShootingByCurrent = false;  
   
-  private enum flywheelStates {
-    IDLE,
-    SHOOT
-  };
-
-  private flywheelStates currentState = flywheelStates.IDLE;
   // create a Motion Magic request, voltage output
 
 
@@ -74,9 +55,7 @@ public class Shooter extends SubsystemBase {
   //private @Getter double m_FlywheelOutputDutyCycle = 0;
   private @Getter long m_TurretAngle = 0; // Use Radians, 0 is from the front of the robot
 
-  private final VelocityVoltage flyWheelVelocityVoltage = new VelocityVoltage(10);
-  private final VelocityVoltage magazineVelocityVoltage = new VelocityVoltage(0);
-  private final PositionVoltage turretOut = new PositionVoltage(0);
+  
 
   /** Shooter Subsystem. */
   public Shooter() {

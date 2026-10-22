@@ -29,11 +29,10 @@ import java.util.function.BooleanSupplier;
 public class HopperTransition extends SubsystemBase {
     private final TalonFX m_SidewaysBelt = new TalonFX(kSidewaysBeltMotorID);
     private final TalonFXConfiguration sidewaysBeltMotorConfig = new TalonFXConfiguration();
-    private final DutyCycleOut m_SidewaysBeltOut = new DutyCycleOut(0.0);
     
     private final TalonFX m_ForwardBelt = new TalonFX(kForwardBeltMotorID);
     private final TalonFXConfiguration forwardBeltMotorConfig = new TalonFXConfiguration();
-    @Getter private final DutyCycleOut m_ForwardBeltOut = new DutyCycleOut(0.0);
+    
 
     public HopperTransition() {
         // Apply things to the configurations here
@@ -51,6 +50,7 @@ public class HopperTransition extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
         builder.addStringProperty("Example!", ()-> "This is what it looks like", null);
     }
 

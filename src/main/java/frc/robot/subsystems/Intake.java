@@ -32,7 +32,7 @@ import static frc.robot.RangerHelpers.*;
 public class Intake extends SubsystemBase {
     private final TalonFX m_RollersL = new TalonFX(kLRollersMotorID);
     private final TalonFXConfiguration lRollersMotorConfig = new TalonFXConfiguration();
-    private final DutyCycleOut lRollersOut = new DutyCycleOut(0.0);
+    
 
     private final TalonFX m_RollersR = new TalonFX(kRRollersMotorID);
     private final TalonFXConfiguration rRollersMotorConfig = new TalonFXConfiguration();
@@ -46,7 +46,6 @@ public class Intake extends SubsystemBase {
     private final CANcoder m_IntakeCANcoder = new CANcoder(kIntakePivotCANcoderID);
 
     private double pivotSetpoint = kStowSetpoint;
-    private MotionMagicVoltage pivotOut = new MotionMagicVoltage(pivotSetpoint);
 
     @Getter private boolean intakeDown = false;
 
@@ -107,107 +106,13 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putData(this);
 
         // setControl needs to run periodically at all times or the motor will disable I think        
-        m_RollersL.setControl(lRollersOut);
-        m_Pivot.setControl(pivotOut);
-    }
-
-    public void gotoStartPoint(){
-        if(m_IntakeCANcoder.getPosition().getValueAsDouble() > 0.7) {
-            setPivot(kStowSetpoint);
-            intakeDown = false;
-        } else {
-            setPivot(kDeploySetpoint);
-            intakeDown = true;
-        }
-    }
-
-    public boolean sanityCheck(){
-        return m_Pivot.isConnected()
-        && m_RollersL.isConnected()
-        && m_RollersR.isConnected()
-        && m_RollersR2.isConnected()
-        && m_IntakeCANcoder.isConnected();
+        
     }
     
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
 
-        // builder.addDoubleProperty("Pivot Motor Voltage", m_Pivot.getMotorVoltage()::getValueAsDouble, null);
-        // builder.addDoubleProperty("Pivot RPM", () -> m_Pivot.getVelocity().getValueAsDouble() * 60, null);
-        // builder.addDoubleProperty("Pivot Motor Temperature", m_Pivot.getDeviceTemp()::getValueAsDouble, null);
-        // builder.addDoubleProperty("Pivot Supply Current", m_Pivot.getSupplyCurrent()::getValueAsDouble, null);
-        // builder.addDoubleProperty("Pivot get()", m_Pivot::get, null);
-        // builder.addDoubleProperty("Pivot Error", m_Pivot.getClosedLoopError()::getValueAsDouble, null);
-
-        // builder.addDoubleProperty("CANcoder Absolute Position",() ->  m_IntakeCANcoder.getAbsolutePosition().getValueAsDouble(), null);
-        // builder.addDoubleProperty("CANcoder Non-absolute Position", () -> m_IntakeCANcoder.getPosition().getValueAsDouble(), null);        
-         builder.addDoubleProperty("Pivot Motor Encoder Position",m_Pivot.getPosition()::getValueAsDouble, null);
-        // builder.addDoubleProperty("Setpoint", () -> pivotSetpoint, null);
-        // builder.addDoubleProperty("intake L", ()->m_RollersL.get(), null);
-        // builder.addDoubleProperty("intake R", ()->m_RollersR.get(), null);
-
-        builder.addDoubleProperty("Intake Rollers L Current",()->m_RollersL.getStatorCurrent().getValueAsDouble(),null);
-        builder.addDoubleProperty("Intake Rollers R Current",()->m_RollersR.getStatorCurrent().getValueAsDouble(),null);
-        builder.addDoubleProperty("Intake Rollers R2 Current",()->m_RollersR2.getStatorCurrent().getValueAsDouble(),null);
-    }
-
-    public Command holdState() {
-        return Commands.idle(this);
-    }
-
-    public void setPivot(double pos){
-        pivotSetpoint = pos;
-        pivotOut.Position = pos;
-    }
-
-    public void setRollersOutput(double output) {
-        lRollersOut.Output = output;
-    }
-
-    public Command intake() {
-        return Commands.runOnce(() -> setRollersOutput(DriverStation.isAutonomous() ? kRollersMotorSpeed : .75), this);
-    }
-
-    public Command outtake() {
-        return Commands.runOnce(() -> setRollersOutput(kRollersMotorSpeed * -1), this);
-    }
-
-    public Command stop() {
-        return Commands.runOnce(() -> setRollersOutput(0.0), this);
-    }
-
-    public Command deploy() {
-        return Commands.runOnce(() -> {setPivot(kDeploySetpoint); intakeDown = true;}, this);
-    }
-
-    public Command lowRetract() {
-        return Commands.runOnce(() -> setPivot(kLowRetractSetpoint), this);
-    }
-
-    public Command highRetract() {
-        return Commands.runOnce(() -> setPivot(kHighRetractSetpoint), this);
-    }
-
-    public Command stow() {
-        return Commands.runOnce(() -> {setPivot(kStowSetpoint); intakeDown = false;}, this);
-    }
-
-    public Command jiggle() {
-        return new SequentialCommandGroup(
-            highRetract(),
-            new WaitCommand(0.25),
-            lowRetract(),
-            new WaitCommand(0.25)
-        ).repeatedly().withName("Jiggle");
-    }
-
-    /**
-     * Wires to the intake roller motors can get eaten by the transition when the intake is stowed.
-     * This function outputs true if it is safe to run the transition motors.
-     */
-    public boolean safeToRunTransition() {
-        return m_IntakeCANcoder.getAbsolutePosition().getValueAsDouble() <= kHighRetractSetpoint;
     }
 
 }
